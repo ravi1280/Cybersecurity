@@ -6,7 +6,19 @@ class LearningManager {
 
     loadData() {
         const data = localStorage.getItem('cyberlearn_data');
-        return data ? JSON.parse(data) : [];
+        if (!data) return [];
+        try {
+            const parsed = JSON.parse(data);
+            if (!Array.isArray(parsed)) return [];
+            // Sanitize data on load to ensure structure is correct
+            return parsed.map(topic => ({
+                ...topic,
+                contents: Array.isArray(topic.contents) ? topic.contents : []
+            }));
+        } catch (e) {
+            console.error('Error loading data:', e);
+            return [];
+        }
     }
 
     saveData() {
@@ -47,6 +59,43 @@ class LearningManager {
     getTopic(id) {
         return this.topics.find(t => t.id === id);
     }
+
+    // Export data to downloadable JSON file
+    exportData() {
+        const dataStr = JSON.stringify(this.topics, null, 2);
+        const dataBlob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(dataBlob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'cyberlearn_data.json';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    }
+
+    // Import data from JSON file
+    importData(file, callback) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const importedData = JSON.parse(e.target.result);
+                if (Array.isArray(importedData)) {
+                    this.topics = importedData.map(topic => ({
+                        ...topic,
+                        contents: Array.isArray(topic.contents) ? topic.contents : []
+                    }));
+                    this.saveData();
+                    if (callback) callback(true, 'Data imported successfully!');
+                } else {
+                    if (callback) callback(false, 'Invalid data format. Please select a valid backup file.');
+                }
+            } catch (error) {
+                if (callback) callback(false, 'Error reading file. Please select a valid JSON file.');
+            }
+        };
+        reader.readAsText(file);
+    }
 }
 
 // ==================== Home Page UI ====================
@@ -77,6 +126,112 @@ class HomeUI {
 
         // Form submission
         this.topicForm.addEventListener('submit', (e) => this.handleTopicSubmit(e));
+
+        // Export/Import buttons
+        document.getElementById('exportDataBtn')?.addEventListener('click', () => this.exportData());
+        document.getElementById('importDataBtn')?.addEventListener('click', () => this.importData());
+    }
+
+    // ==================== Custom UI Methods ====================
+    showToast(message, type = 'info') {
+        const toastContainer = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+
+        let icon = 'ℹ️';
+        if (type === 'success') icon = '✅';
+        if (type === 'error') icon = '❌';
+
+        toast.innerHTML = `
+            <div class="toast-icon">${icon}</div>
+            <div class="toast-content">
+                <div class="toast-title">${type.charAt(0).toUpperCase() + type.slice(1)}</div>
+                <div class="toast-message">${message}</div>
+            </div>
+            <button class="toast-close">&times;</button>
+        `;
+
+        toastContainer.appendChild(toast);
+
+        // Close button
+        toast.querySelector('.toast-close').addEventListener('click', () => {
+            toast.style.animation = 'toastSlideOut 0.3s ease forwards';
+            setTimeout(() => toast.remove(), 300);
+        });
+
+        // Auto remove
+        setTimeout(() => {
+            if (toast.parentElement) {
+                toast.style.animation = 'toastSlideOut 0.3s ease forwards';
+                setTimeout(() => toast.remove(), 300);
+            }
+        }, 5000);
+    }
+
+    showConfirm(title, message, onConfirm) {
+        const modal = document.getElementById('confirmModal');
+        const overlay = document.getElementById('confirmModalOverlay');
+        const titleEl = document.getElementById('confirmTitle');
+        const messageEl = document.getElementById('confirmMessage');
+        const cancelBtn = document.getElementById('confirmCancelBtn');
+        const okBtn = document.getElementById('confirmOkBtn');
+
+        titleEl.textContent = title;
+        messageEl.textContent = message;
+
+        const closeModal = () => {
+            modal.classList.remove('active');
+            // Remove event listeners to prevent duplicates
+            okBtn.replaceWith(okBtn.cloneNode(true));
+            cancelBtn.replaceWith(cancelBtn.cloneNode(true));
+            overlay.replaceWith(overlay.cloneNode(true));
+        };
+
+        modal.classList.add('active');
+
+        // Re-select buttons after cloning
+        const newOkBtn = document.getElementById('confirmOkBtn');
+        const newCancelBtn = document.getElementById('confirmCancelBtn');
+        const newOverlay = document.getElementById('confirmModalOverlay');
+
+        newOkBtn.addEventListener('click', () => {
+            closeModal();
+            onConfirm();
+        });
+
+        newCancelBtn.addEventListener('click', closeModal);
+        newOverlay.addEventListener('click', closeModal);
+    }
+
+    exportData() {
+        this.lm.exportData();
+        this.showToast('Data exported successfully!', 'success');
+    }
+
+    importData() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.json';
+        input.onchange = (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                this.showConfirm(
+                    'Import Data?',
+                    'This will replace all your current topics and content. Are you sure you want to proceed?',
+                    () => {
+                        this.lm.importData(file, (success, message) => {
+                            if (success) {
+                                this.showToast(message, 'success');
+                                setTimeout(() => window.location.reload(), 1500);
+                            } else {
+                                this.showToast(message, 'error');
+                            }
+                        });
+                    }
+                );
+            }
+        };
+        input.click();
     }
 
     openTopicModal(topicId = null) {
@@ -130,10 +285,15 @@ class HomeUI {
 
     deleteTopic(topicId) {
         const topic = this.lm.getTopic(topicId);
-        if (confirm(`Are you sure you want to delete "${topic.name}" and all its content?`)) {
-            this.lm.deleteTopic(topicId);
-            this.render();
-        }
+        this.showConfirm(
+            'Delete Topic?',
+            `Are you sure you want to delete "${topic.name}" and all its content? This cannot be undone.`,
+            () => {
+                this.lm.deleteTopic(topicId);
+                this.render();
+                this.showToast('Topic deleted successfully', 'success');
+            }
+        );
     }
 
     render() {
@@ -148,17 +308,19 @@ class HomeUI {
     }
 
     renderTable() {
-        this.topicsTableBody.innerHTML = this.lm.topics.map(topic => `
+        this.topicsTableBody.innerHTML = this.lm.topics.map(topic => {
+            const contentCount = Array.isArray(topic.contents) ? topic.contents.length : 0;
+            return `
             <tr>
                 <td class="topic-row-icon">📚</td>
                 <td class="topic-row-name">
-                    <a href="topic.html?id=${topic.id}">${this.escapeHtml(topic.name)}</a>
+                    <a href="topic.html?id=${topic.id}">${this.escapeHtml(topic.name || 'Untitled')}</a>
                 </td>
                 <td class="topic-row-description">
                     ${topic.description ? this.escapeHtml(topic.description) : '<em style="color: var(--color-text-muted);">No description</em>'}
                 </td>
                 <td class="topic-row-content">
-                    <span class="content-count">${topic.contents.length}</span>
+                    <span class="content-count">${contentCount}</span>
                 </td>
                 <td class="topic-row-actions">
                     <div class="table-action-buttons">
@@ -171,7 +333,7 @@ class HomeUI {
                     </div>
                 </td>
             </tr>
-        `).join('');
+        `}).join('');
     }
 
     escapeHtml(text) {
@@ -187,3 +349,16 @@ const homeUI = new HomeUI(learningManager);
 
 // Make homeUI accessible globally for inline event handlers
 window.homeUI = homeUI;
+
+// Handle Loading Overlay
+window.addEventListener('load', () => {
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    if (loadingOverlay) {
+        setTimeout(() => {
+            loadingOverlay.classList.add('hidden');
+            setTimeout(() => {
+                loadingOverlay.style.display = 'none';
+            }, 500); // Wait for transition to finish
+        }, 1500); // Show loader for 1.5 seconds
+    }
+});

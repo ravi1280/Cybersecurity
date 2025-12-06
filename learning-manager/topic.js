@@ -130,6 +130,77 @@ class TopicUI {
         document.getElementById('contentImage').addEventListener('change', (e) => this.handleImageUpload(e));
     }
 
+    // ==================== Custom UI Methods ====================
+    showToast(message, type = 'info') {
+        const toastContainer = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+
+        let icon = 'ℹ️';
+        if (type === 'success') icon = '✅';
+        if (type === 'error') icon = '❌';
+
+        toast.innerHTML = `
+            <div class="toast-icon">${icon}</div>
+            <div class="toast-content">
+                <div class="toast-title">${type.charAt(0).toUpperCase() + type.slice(1)}</div>
+                <div class="toast-message">${message}</div>
+            </div>
+            <button class="toast-close">&times;</button>
+        `;
+
+        toastContainer.appendChild(toast);
+
+        // Close button
+        toast.querySelector('.toast-close').addEventListener('click', () => {
+            toast.style.animation = 'toastSlideOut 0.3s ease forwards';
+            setTimeout(() => toast.remove(), 300);
+        });
+
+        // Auto remove
+        setTimeout(() => {
+            if (toast.parentElement) {
+                toast.style.animation = 'toastSlideOut 0.3s ease forwards';
+                setTimeout(() => toast.remove(), 300);
+            }
+        }, 5000);
+    }
+
+    showConfirm(title, message, onConfirm) {
+        const modal = document.getElementById('confirmModal');
+        const overlay = document.getElementById('confirmModalOverlay');
+        const titleEl = document.getElementById('confirmTitle');
+        const messageEl = document.getElementById('confirmMessage');
+        const cancelBtn = document.getElementById('confirmCancelBtn');
+        const okBtn = document.getElementById('confirmOkBtn');
+
+        titleEl.textContent = title;
+        messageEl.textContent = message;
+
+        const closeModal = () => {
+            modal.classList.remove('active');
+            // Remove event listeners to prevent duplicates
+            okBtn.replaceWith(okBtn.cloneNode(true));
+            cancelBtn.replaceWith(cancelBtn.cloneNode(true));
+            overlay.replaceWith(overlay.cloneNode(true));
+        };
+
+        modal.classList.add('active');
+
+        // Re-select buttons after cloning
+        const newOkBtn = document.getElementById('confirmOkBtn');
+        const newCancelBtn = document.getElementById('confirmCancelBtn');
+        const newOverlay = document.getElementById('confirmModalOverlay');
+
+        newOkBtn.addEventListener('click', () => {
+            closeModal();
+            onConfirm();
+        });
+
+        newCancelBtn.addEventListener('click', closeModal);
+        newOverlay.addEventListener('click', closeModal);
+    }
+
     // ==================== Topic Management ====================
     openTopicModal() {
         document.getElementById('topicName').value = this.topic.name;
@@ -154,13 +225,19 @@ class TopicUI {
         document.getElementById('topicDescription').textContent = description;
 
         this.closeTopicModal();
+        this.showToast('Topic updated successfully', 'success');
     }
 
     deleteTopic() {
-        if (confirm(`Are you sure you want to delete "${this.topic.name}" and all its content?`)) {
-            this.lm.deleteTopic(this.topicId);
-            window.location.href = 'index.html';
-        }
+        this.showConfirm(
+            'Delete Topic?',
+            `Are you sure you want to delete "${this.topic.name}" and all its content? This cannot be undone.`,
+            () => {
+                this.lm.deleteTopic(this.topicId);
+                this.showToast('Topic deleted successfully', 'success');
+                setTimeout(() => window.location.href = 'index.html', 1500);
+            }
+        );
     }
 
     // ==================== Content Management ====================
@@ -247,8 +324,10 @@ class TopicUI {
 
         if (this.editMode) {
             this.lm.updateContent(this.topicId, this.currentContentId, contentData);
+            this.showToast('Content updated successfully', 'success');
         } else {
             this.lm.addContent(this.topicId, contentData);
+            this.showToast('Content added successfully', 'success');
         }
 
         this.topic = this.lm.getTopic(this.topicId);
@@ -257,11 +336,16 @@ class TopicUI {
     }
 
     deleteContent(contentId) {
-        if (confirm('Are you sure you want to delete this content card?')) {
-            this.lm.deleteContent(this.topicId, contentId);
-            this.topic = this.lm.getTopic(this.topicId);
-            this.renderContent();
-        }
+        this.showConfirm(
+            'Delete Content?',
+            'Are you sure you want to delete this content card?',
+            () => {
+                this.lm.deleteContent(this.topicId, contentId);
+                this.topic = this.lm.getTopic(this.topicId);
+                this.renderContent();
+                this.showToast('Content deleted successfully', 'success');
+            }
+        );
     }
 
     // ==================== Dynamic Fields ====================
@@ -309,7 +393,7 @@ class TopicUI {
     }
 
     renderContent() {
-        if (this.topic.contents.length === 0) {
+        if (!this.topic.contents || this.topic.contents.length === 0) {
             this.emptyContentState.style.display = 'block';
             this.contentCardsGrid.style.display = 'none';
         } else {

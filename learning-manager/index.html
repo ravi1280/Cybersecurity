@@ -12,11 +12,32 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&family=Roboto:wght@300;400;500;700;900&family=Open+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap"
         rel="stylesheet">
+    <style>
+        /* Force Montserrat font - inline override */
+        body,
+        html,
+        * {
+            font-family: 'Montserrat', 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+        }
+
+        code,
+        pre {
+            font-family: 'Fira Code', 'Courier New', monospace !important;
+        }
+    </style>
 </head>
 
 <body>
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-content">
+            <div class="loading-icon">🛡️</div>
+            <h1 class="loading-title">CyberLearn</h1>
+            <div class="loading-spinner"></div>
+        </div>
+    </div>
     <!-- Header -->
     <header class="header">
         <div class="container">
@@ -63,9 +84,22 @@
                 </button>
             </div>
 
-            <!-- Topics Grid -->
-            <div class="topics-grid" id="topicsGrid">
-                <!-- Topics will be inserted here by script.js -->
+            <!-- Topics Table -->
+            <div id="topicsTableContainer" class="topics-table-container">
+                <table class="topics-table">
+                    <thead>
+                        <tr>
+                            <th class="col-icon"></th>
+                            <th class="col-name">Topic Name</th>
+                            <th class="col-description">Description</th>
+                            <th class="col-content">Content</th>
+                            <th class="col-actions">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="topicsTableBody">
+                        <!-- Rows will be inserted here by home.js -->
+                    </tbody>
+                </table>
             </div>
         </div>
     </main>
@@ -100,59 +134,24 @@
         </div>
     </div>
 
-    <!-- Add/Edit Content Modal -->
-    <div class="modal" id="contentModal">
-        <div class="modal-overlay" id="contentModalOverlay"></div>
-        <div class="modal-content modal-large">
-            <div class="modal-header">
-                <h2 id="contentModalTitle">Add Content Card</h2>
-                <button class="modal-close" id="contentModalClose">&times;</button>
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal" id="confirmModal">
+        <div class="modal-overlay" id="confirmModalOverlay"></div>
+        <div class="modal-content confirm-modal-content">
+            <div class="confirm-icon" id="confirmIcon">❓</div>
+            <h2 class="confirm-title" id="confirmTitle">Are you sure?</h2>
+            <p class="confirm-message" id="confirmMessage">This action cannot be undone.</p>
+            <div class="confirm-actions">
+                <button class="btn btn-secondary" id="confirmCancelBtn">Cancel</button>
+                <button class="btn btn-primary" id="confirmOkBtn">Confirm</button>
             </div>
-            <form id="contentForm">
-                <div class="form-group">
-                    <label for="contentTitle">Title</label>
-                    <input type="text" id="contentTitle" placeholder="Content title..." required>
-                </div>
-
-                <div class="form-group">
-                    <label for="contentDescription">Description</label>
-                    <textarea id="contentDescription" rows="3" placeholder="Describe this content..."></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label>Subtopics</label>
-                    <div id="subtopicsList"></div>
-                    <button type="button" class="btn btn-secondary btn-sm" id="addSubtopicBtn">
-                        <span class="btn-icon">➕</span> Add Subtopic
-                    </button>
-                </div>
-
-                <div class="form-group">
-                    <label>Links</label>
-                    <div id="linksList"></div>
-                    <button type="button" class="btn btn-secondary btn-sm" id="addLinkBtn">
-                        <span class="btn-icon">➕</span> Add Link
-                    </button>
-                </div>
-
-                <div class="form-group">
-                    <label for="contentImage">Image</label>
-                    <input type="file" id="contentImage" accept="image/*">
-                    <div id="imagePreview" class="image-preview"></div>
-                </div>
-
-                <div class="modal-actions">
-                    <button type="button" class="btn btn-secondary" id="cancelContentBtn">Cancel</button>
-                    <button type="submit" class="btn btn-primary">
-                        <span class="btn-icon">💾</span>
-                        Save Content
-                    </button>
-                </div>
-            </form>
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script src="home.js"></script>
 </body>
 
 </html>
