@@ -1,23 +1,87 @@
 // ==================== Data Management ====================
 class LearningManager {
     constructor() {
-        this.topics = this.loadData();
+        this.topics = [];
         this.currentTopicId = null;
         this.currentContentId = null;
         this.editMode = false;
+        this.storageKey = 'cyberlearn_shared_data';
     }
 
-    loadData() {
-        const data = localStorage.getItem('cyberlearn_data');
-        return data ? JSON.parse(data) : [];
+    async loadData() {
+        // Try to load from data.json file (if you manually placed it in folder)
+        try {
+            const response = await fetch('data.json');
+            if (response.ok) {
+                const data = await response.json();
+                this.topics = data;
+                console.log('✅ Loaded data from data.json file');
+                
+                // Also save to localStorage for backup
+                localStorage.setItem(this.storageKey, JSON.stringify(data));
+                return data;
+            }
+        } catch (error) {
+            console.log('ℹ️ No data.json file found, using localStorage');
+        }
+        
+        // Fallback to localStorage
+        const data = localStorage.getItem(this.storageKey);
+        if (data) {
+            this.topics = JSON.parse(data);
+            return this.topics;
+        }
+        
+        return [];
     }
 
     saveData() {
-        localStorage.setItem('cyberlearn_data', JSON.stringify(this.topics));
+        // Save to localStorage (automatic backup)
+        localStorage.setItem(this.storageKey, JSON.stringify(this.topics));
+        localStorage.setItem(this.storageKey + '_updated', new Date().toISOString());
     }
 
     generateId() {
         return Date.now().toString(36) + Math.random().toString(36).substr(2);
+    }
+
+    // Export data to downloadable JSON file
+    exportData() {
+        const dataStr = JSON.stringify(this.topics, null, 2);
+        const dataBlob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(dataBlob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'data.json';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        
+        alert('✅ Data exported as data.json!\n\n📁 File saved to your Downloads folder.\n\n💡 TIP: To sync across browsers:\n1. Copy data.json from Downloads\n2. Paste it into the learning-manager folder\n3. Click Import in another browser');
+    }
+
+    // Import data from JSON file
+    importData(file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const importedData = JSON.parse(e.target.result);
+                if (Array.isArray(importedData)) {
+                    if (confirm('📁 Import data from this file?\n\nThis will replace all current data.')) {
+                        this.topics = importedData;
+                        this.saveData();
+                        alert('✅ Data imported successfully!');
+                        window.location.reload();
+                    }
+                } else {
+                    alert('❌ Invalid data format.\n\nPlease select a valid data.json backup file.');
+                }
+            } catch (error) {
+                alert('❌ Error reading file.\n\nPlease select a valid JSON file exported from this app.');
+            }
+        };
+        reader.readAsText(file);
     }
 
     addTopic(name, description = '') {
@@ -90,7 +154,22 @@ class UIManager {
         this.lm = learningManager;
         this.initializeElements();
         this.attachEventListeners();
+        this.initialize();
+    }
+
+    async initialize() {
+        // Load data on startup
+        await this.lm.loadData();
         this.render();
+        
+        // Show helpful tip on first load
+        const firstTime = !localStorage.getItem('cyberlearn_shown_tip');
+        if (firstTime && this.lm.topics.length === 0) {
+            localStorage.setItem('cyberlearn_shown_tip', 'true');
+            setTimeout(() => {
+                alert('👋 Welcome to CyberLearn!\n\n💡 TIP: Your data saves automatically in this browser.\n\n📁 Use Export/Import buttons to sync between browsers or backup your data.');
+            }, 500);
+        }
     }
 
     initializeElements() {
@@ -135,6 +214,10 @@ class UIManager {
         
         // Image upload
         document.getElementById('contentImage').addEventListener('change', (e) => this.handleImageUpload(e));
+        
+        // Export/Import buttons
+        document.getElementById('exportDataBtn')?.addEventListener('click', () => this.exportData());
+        document.getElementById('importDataBtn')?.addEventListener('click', () => this.importData());
     }
 
     // ==================== Topic Modal ====================
@@ -402,6 +485,23 @@ class UIManager {
             this.lm.deleteContent(topicId, contentId);
             this.render();
         }
+    }
+
+    exportData() {
+        this.lm.exportData();
+    }
+
+    importData() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.json';
+        input.onchange = (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                this.lm.importData(file);
+            }
+        };
+        input.click();
     }
 
     escapeHtml(text) {
