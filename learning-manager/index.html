@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberLearn - Learning Management System</title>
+    <meta name="description" content="Comprehensive cybersecurity learning management system for organizing topics, content, and resources">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-icon">🛡️</div>
+                    <h1>CyberLearn</h1>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-primary" id="addTopicBtn">
+                        <span class="btn-icon">➕</span>
+                        Add Topic
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Empty State -->
+            <div class="empty-state" id="emptyState">
+                <div class="empty-icon">📚</div>
+                <h2>Start Your Cybersecurity Journey</h2>
+                <p>Create your first topic to begin organizing your learning materials</p>
+                <button class="btn btn-primary btn-lg" id="addTopicBtnEmpty">
+                    <span class="btn-icon">➕</span>
+                    Create First Topic
+                </button>
+            </div>
+
+            <!-- Topics Grid -->
+            <div class="topics-grid" id="topicsGrid"></div>
+        </div>
+    </main>
+
+    <!-- Add/Edit Topic Modal -->
+    <div class="modal" id="topicModal">
+        <div class="modal-overlay" id="topicModalOverlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="topicModalTitle">Add New Topic</h2>
+                <button class="modal-close" id="topicModalClose">&times;</button>
+            </div>
+            <form id="topicForm">
+                <div class="form-group">
+                    <label for="topicName">Topic Name</label>
+                    <input type="text" id="topicName" placeholder="e.g., Network Security, Cryptography, Ethical Hacking" required>
+                </div>
+                <div class="form-group">
+                    <label for="topicDescription">Description (Optional)</label>
+                    <textarea id="topicDescription" rows="3" placeholder="Brief description of this topic..."></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelTopicBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <span class="btn-icon">💾</span>
+                        Save Topic
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add/Edit Content Card Modal -->
+    <div class="modal" id="contentModal">
+        <div class="modal-overlay" id="contentModalOverlay"></div>
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2 id="contentModalTitle">Add Content Card</h2>
+                <button class="modal-close" id="contentModalClose">&times;</button>
+            </div>
+            <form id="contentForm">
+                <div class="form-group">
+                    <label for="contentTitle">Content Title</label>
+                    <input type="text" id="contentTitle" placeholder="e.g., Introduction to Firewalls" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="contentDescription">Description</label>
+                    <textarea id="contentDescription" rows="4" placeholder="Detailed description of this content..."></textarea>
+                </div>
+
+                <!-- Subtopics Section -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <label>Subtopics</label>
+                        <button type="button" class="btn btn-small btn-secondary" id="addSubtopicBtn">
+                            <span class="btn-icon">➕</span>
+                            Add Subtopic
+                        </button>
+                    </div>
+                    <div id="subtopicsList" class="dynamic-list"></div>
+                </div>
+
+                <!-- Links Section -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <label>Resource Links</label>
+                        <button type="button" class="btn btn-small btn-secondary" id="addLinkBtn">
+                            <span class="btn-icon">➕</span>
+                            Add Link
+                        </button>
+                    </div>
+                    <div id="linksList" class="dynamic-list"></div>
+                </div>
+
+                <!-- Image Upload Section -->
+                <div class="form-section">
+                    <label>Image (Optional)</label>
+                    <div class="image-upload-container">
+                        <input type="file" id="contentImage" accept="image/*" class="file-input">
+                        <label for="contentImage" class="file-label">
+                            <span class="file-icon">📷</span>
+                            <span class="file-text">Choose an image or drag here</span>
+                        </label>
+                        <div id="imagePreview" class="image-preview"></div>
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelContentBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <span class="btn-icon">💾</span>
+                        Save Content
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
