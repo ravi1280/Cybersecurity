@@ -265,7 +265,12 @@ class TopicUI {
             // Populate subtopics
             if (content.subtopics && content.subtopics.length > 0) {
                 content.subtopics.forEach(subtopic => {
-                    this.addSubtopicField(subtopic);
+                    // Handle both old format (string) and new format (object)
+                    if (typeof subtopic === 'string') {
+                        this.addSubtopicField(subtopic, '');
+                    } else {
+                        this.addSubtopicField(subtopic.title, subtopic.content);
+                    }
                 });
             }
 
@@ -278,7 +283,12 @@ class TopicUI {
 
             // Show image if exists
             if (content.image) {
-                this.imagePreview.innerHTML = `<img src="${content.image}" alt="Content image">`;
+                this.imagePreview.innerHTML = `
+                    <img src="${content.image}" alt="Content image">
+                    <button type="button" class="remove-image-btn" onclick="topicUI.removeImage()">
+                        <span>×</span> Remove Image
+                    </button>
+                `;
                 this.imagePreview.classList.add('active');
             }
         } else {
@@ -299,10 +309,13 @@ class TopicUI {
         const title = document.getElementById('contentTitle').value.trim();
         const description = document.getElementById('contentDescription').value.trim();
 
-        // Collect subtopics
-        const subtopics = Array.from(this.subtopicsList.querySelectorAll('input'))
-            .map(input => input.value.trim())
-            .filter(value => value !== '');
+        // Collect subtopics with their content
+        const subtopicItems = this.subtopicsList.querySelectorAll('.subtopic-item');
+        const subtopics = Array.from(subtopicItems).map(item => {
+            const title = item.querySelector('.subtopic-title').value.trim();
+            const content = item.querySelector('.subtopic-content').value.trim();
+            return { title, content };
+        }).filter(st => st.title !== '');
 
         // Collect links
         const linkInputs = this.linksList.querySelectorAll('.dynamic-item');
@@ -350,14 +363,22 @@ class TopicUI {
     }
 
     // ==================== Dynamic Fields ====================
-    addSubtopicField(value = '') {
+    addSubtopicField(value = '', content = '') {
         const item = document.createElement('div');
-        item.className = 'dynamic-item';
+        item.className = 'dynamic-item subtopic-item';
         item.innerHTML = `
-            <input type="text" placeholder="Enter subtopic..." value="${value}">
-            <button type="button" class="remove-btn" onclick="this.parentElement.remove()">×</button>
+            <div class="subtopic-title-row">
+                <input type="text" class="subtopic-title" placeholder="Enter subtopic title..." value="${value}">
+                <button type="button" class="remove-btn" onclick="this.closest('.subtopic-item').remove()">×</button>
+            </div>
+            <textarea class="subtopic-content" placeholder="Enter subtopic content/description..." rows="3">${content}</textarea>
         `;
         this.subtopicsList.appendChild(item);
+        
+        // Scroll the new item into view smoothly
+        setTimeout(() => {
+            item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 100);
     }
 
     addLinkField(label = '', url = '') {
@@ -376,11 +397,22 @@ class TopicUI {
         if (file) {
             const reader = new FileReader();
             reader.onload = (event) => {
-                this.imagePreview.innerHTML = `<img src="${event.target.result}" alt="Preview">`;
+                this.imagePreview.innerHTML = `
+                    <img src="${event.target.result}" alt="Preview">
+                    <button type="button" class="remove-image-btn" onclick="topicUI.removeImage()">
+                        <span>×</span> Remove Image
+                    </button>
+                `;
                 this.imagePreview.classList.add('active');
             };
             reader.readAsDataURL(file);
         }
+    }
+
+    removeImage() {
+        this.imagePreview.innerHTML = '';
+        this.imagePreview.classList.remove('active');
+        document.getElementById('contentImage').value = '';
     }
 
     // ==================== Rendering ====================
@@ -419,16 +451,28 @@ class TopicUI {
                     </div>
                 </div>
                 
-                ${content.description ? `<p class="content-description">${this.escapeHtml(content.description)}</p>` : ''}
+                ${content.description ? `<p class="content-description">${this.escapeHtml(content.description).replace(/\n/g, '<br>')}</p>` : ''}
                 
                 ${content.image ? `<img src="${content.image}" alt="${this.escapeHtml(content.title)}" class="content-image">` : ''}
                 
                 ${content.subtopics && content.subtopics.length > 0 ? `
                     <div class="subtopics-list">
                         <h4>Subtopics</h4>
-                        <ul>
-                            ${content.subtopics.map(st => `<li>${this.escapeHtml(st)}</li>`).join('')}
-                        </ul>
+                        <div class="subtopics-content">
+                            ${content.subtopics.map(st => {
+                                // Handle both old format (string) and new format (object)
+                                if (typeof st === 'string') {
+                                    return `<div class="subtopic-item-display">
+                                        <div class="subtopic-title-display">• ${this.escapeHtml(st)}</div>
+                                    </div>`;
+                                } else {
+                                    return `<div class="subtopic-item-display">
+                                        <div class="subtopic-title-display">• ${this.escapeHtml(st.title)}</div>
+                                        ${st.content ? `<div class="subtopic-content-display">${this.escapeHtml(st.content).replace(/\n/g, '<br>')}</div>` : ''}
+                                    </div>`;
+                                }
+                            }).join('')}
+                        </div>
                     </div>
                 ` : ''}
                 
