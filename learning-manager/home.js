@@ -103,6 +103,7 @@ class HomeUI {
     constructor(learningManager) {
         this.lm = learningManager;
         this.currentTopicId = null;
+        this.contextMenuTopicId = null;
         this.initializeElements();
         this.attachEventListeners();
         this.render();
@@ -111,9 +112,9 @@ class HomeUI {
     initializeElements() {
         this.topicModal = document.getElementById('topicModal');
         this.topicForm = document.getElementById('topicForm');
-        this.topicsTableContainer = document.getElementById('topicsTableContainer');
-        this.topicsTableBody = document.getElementById('topicsTableBody');
+        this.topicsGrid = document.getElementById('topicsGrid');
         this.emptyState = document.getElementById('emptyState');
+        this.contextMenu = document.getElementById('contextMenu');
     }
 
     attachEventListeners() {
@@ -130,6 +131,9 @@ class HomeUI {
         // Export/Import buttons
         document.getElementById('exportDataBtn')?.addEventListener('click', () => this.exportData());
         document.getElementById('importDataBtn')?.addEventListener('click', () => this.importData());
+
+        // Global click to hide context menu
+        document.addEventListener('click', () => this.hideContextMenu());
     }
 
     // ==================== Custom UI Methods ====================
@@ -296,43 +300,82 @@ class HomeUI {
         );
     }
 
-    render() {
-        if (this.lm.topics.length === 0) {
-            this.emptyState.style.display = 'block';
-            this.topicsTableContainer.style.display = 'none';
-        } else {
-            this.emptyState.style.display = 'none';
-            this.topicsTableContainer.style.display = 'block';
-            this.renderTable();
+    // ==================== Context Menu Logic ====================
+    handleContextMenu(event, topicId) {
+        event.preventDefault();
+        event.stopPropagation(); // Prevent document click from immediately hiding it
+
+        this.contextMenuTopicId = topicId;
+
+        // Position the menu
+        const x = event.pageX;
+        const y = event.pageY;
+
+        this.contextMenu.style.left = `${x}px`;
+        this.contextMenu.style.top = `${y}px`;
+        this.contextMenu.classList.add('active');
+    }
+
+    hideContextMenu() {
+        if (this.contextMenu) {
+            this.contextMenu.classList.remove('active');
         }
     }
 
-    renderTable() {
-        this.topicsTableBody.innerHTML = this.lm.topics.map(topic => {
-            const contentCount = Array.isArray(topic.contents) ? topic.contents.length : 0;
+    handleContextAction(action) {
+        this.hideContextMenu();
+
+        if (!this.contextMenuTopicId) return;
+
+        switch (action) {
+            case 'view':
+                this.viewTopic(this.contextMenuTopicId);
+                break;
+            case 'edit':
+                this.editTopic(this.contextMenuTopicId);
+                break;
+            case 'delete':
+                this.deleteTopic(this.contextMenuTopicId);
+                break;
+        }
+    }
+
+    render() {
+        if (this.lm.topics.length === 0) {
+            this.emptyState.style.display = 'block';
+            this.topicsGrid.style.display = 'none';
+        } else {
+            this.emptyState.style.display = 'none';
+            this.topicsGrid.style.display = 'grid';
+            this.renderGrid();
+        }
+    }
+
+    renderGrid() {
+        this.topicsGrid.innerHTML = this.lm.topics.map((topic, index) => {
+            // Bento Grid Logic for variable sizes
+            let spanClass = '';
+
+            // Pattern: Every 6th item is wide (Index 0, 6, 12...)
+            // This ensures there's always a full row of normal cards between wide ones
+            if (index % 6 === 0) {
+                spanClass = 'col-span-2';
+            }
+
             return `
-            <tr>
-                <td class="topic-row-icon">📚</td>
-                <td class="topic-row-name">
-                    <a href="topic.html?id=${topic.id}">${this.escapeHtml(topic.name || 'Untitled')}</a>
-                </td>
-                <td class="topic-row-description">
-                    ${topic.description ? this.escapeHtml(topic.description) : '<em style="color: var(--color-text-muted);">No description</em>'}
-                </td>
-                <td class="topic-row-content">
-                    <span class="content-count">${contentCount}</span>
-                </td>
-                <td class="topic-row-actions">
-                    <div class="table-action-buttons">
-                        <button class="btn btn-small btn-secondary" onclick="homeUI.viewTopic('${topic.id}')" title="View topic">
-                            <span class="btn-icon">👁️</span>
-                            View
-                        </button>
-                        <button class="icon-btn" onclick="homeUI.editTopic('${topic.id}')" title="Edit topic">✏️</button>
-                        <button class="icon-btn" onclick="homeUI.deleteTopic('${topic.id}')" title="Delete topic">🗑️</button>
-                    </div>
-                </td>
-            </tr>
+            <div class="topic-card ${spanClass}" 
+                 oncontextmenu="homeUI.handleContextMenu(event, '${topic.id}')"
+                 onclick="homeUI.viewTopic('${topic.id}')"
+                 title="Right-click for options">
+                
+                <div class="topic-number">${(index + 1).toString().padStart(2, '0')}</div>
+                
+                <a href="topic.html?id=${topic.id}" class="topic-card-title" onclick="event.stopPropagation()">${this.escapeHtml(topic.name || 'Untitled')}</a>
+                
+                <div class="topic-card-description">
+                    ${topic.description ? this.escapeHtml(topic.description) : 'No description available.'}
+                </div>
+            </div>
         `}).join('');
     }
 
