@@ -107,8 +107,9 @@ class TopicUI {
 
     attachEventListeners() {
         // Topic actions
-        document.getElementById('editTopicBtn').addEventListener('click', () => this.openTopicModal());
-        document.getElementById('deleteTopicBtn').addEventListener('click', () => this.deleteTopic());
+        // Topic actions (buttons removed)
+        // document.getElementById('editTopicBtn')?.addEventListener('click', () => this.openTopicModal());
+        // document.getElementById('deleteTopicBtn')?.addEventListener('click', () => this.deleteTopic());
 
         // Topic modal
         document.getElementById('topicModalClose').addEventListener('click', () => this.closeTopicModal());
@@ -404,13 +405,17 @@ class TopicUI {
     }
 
     renderContentCards() {
-        this.contentCardsGrid.innerHTML = this.topic.contents.map(content => `
-            <div class="content-card-full">
+        this.contentCardsGrid.innerHTML = this.topic.contents.map((content, index) => `
+            <div class="content-card-full" style="animation: fadeIn 0.5s ease forwards; animation-delay: ${index * 0.1}s; opacity: 0;">
                 <div class="content-card-header">
                     <h4 class="content-title">${this.escapeHtml(content.title)}</h4>
                     <div class="topic-actions">
-                        <button class="icon-btn" onclick="topicUI.openContentModal('${content.id}')" title="Edit content">✏️</button>
-                        <button class="icon-btn" onclick="topicUI.deleteContent('${content.id}')" title="Delete content">🗑️</button>
+                        <button class="icon-btn" onclick="topicUI.openContentModal('${content.id}')" title="Edit content">
+                            <span style="font-size: 1rem;">✏️</span>
+                        </button>
+                        <button class="icon-btn" onclick="topicUI.deleteContent('${content.id}')" title="Delete content">
+                            <span style="font-size: 1rem;">🗑️</span>
+                        </button>
                     </div>
                 </div>
                 

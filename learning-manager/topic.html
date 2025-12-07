@@ -4,15 +4,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CyberLearn - Topic Details</title>
-    <meta name="description" content="View and manage content for your cybersecurity learning topic">
+    <title>Learning Hub - Topic Details</title>
+    <meta name="description" content="View and manage content for your learning topic">
     <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="premium-enhancements.css">
+
     <link rel="stylesheet" href="font-override.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap"
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Fira+Code:wght@400;500&display=swap"
         rel="stylesheet">
 </head>
 
@@ -22,9 +22,10 @@
         <div class="container">
             <div class="header-content">
                 <div class="logo">
-                    <a href="index.html" class="logo-link">
-                        <div class="logo-icon">🛡️</div>
-                        <h1>CyberLearn</h1>
+                    <a href="index.html" class="logo-link"
+                        style="text-decoration: none; display: flex; align-items: center; gap: 0.5rem; color: inherit;">
+                        <div class="logo-icon">🎓</div>
+                        <h1>Learning Hub</h1>
                     </a>
                 </div>
                 <div class="header-actions">
@@ -49,16 +50,6 @@
                 <div class="topic-detail-info">
                     <h2 class="topic-detail-title" id="topicTitle">Loading...</h2>
                     <p class="topic-detail-description" id="topicDescription"></p>
-                </div>
-                <div class="topic-detail-actions">
-                    <button class="btn btn-secondary" id="editTopicBtn">
-                        <span class="btn-icon">✏️</span>
-                        Edit Topic
-                    </button>
-                    <button class="btn btn-danger" id="deleteTopicBtn">
-                        <span class="btn-icon">🗑️</span>
-                        Delete Topic
-                    </button>
                 </div>
             </div>
 
