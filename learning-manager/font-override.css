@@ -1,40 +1,58 @@
-/* Font Override - Montserrat Font Family */
+/* Font Override - DM Sans Font Family */
 
-/* Apply Montserrat font to body - this will cascade to all elements */
+/* Apply DM Sans font to body - this will cascade to all elements */
 body {
-    font-family: 'Montserrat', 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family: 'DM Sans', 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
-/* Ensure all text elements use Montserrat */
-body, html, * {
-    font-family: 'Montserrat', 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+/* Ensure all text elements use DM Sans */
+body,
+html,
+* {
+    font-family: 'DM Sans', 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
-/* Headings with Montserrat Bold */
-h1, h2, h3, h4, h5, h6,
-.page-title, .topic-title, .content-title {
-    font-family: 'Montserrat', sans-serif;
+/* Headings with DM Sans Bold */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.page-title,
+.topic-title,
+.content-title {
+    font-family: 'DM Sans', sans-serif;
     font-weight: 700;
 }
 
-/* Buttons with Montserrat SemiBold */
-button, .btn, a.btn {
-    font-family: 'Montserrat', sans-serif;
+/* Buttons with DM Sans SemiBold */
+button,
+.btn,
+a.btn {
+    font-family: 'DM Sans', sans-serif;
     font-weight: 600;
 }
 
-/* Input fields with Montserrat */
-input, textarea, select, label {
-    font-family: 'Montserrat', sans-serif;
+/* Input fields with DM Sans */
+input,
+textarea,
+select,
+label {
+    font-family: 'DM Sans', sans-serif;
 }
 
 /* Paragraphs and general text */
-p, span, div, li {
-    font-family: 'Montserrat', sans-serif;
+p,
+span,
+div,
+li {
+    font-family: 'DM Sans', sans-serif;
 }
 
 /* Code elements keep monospace */
-code, pre, .code {
+code,
+pre,
+.code {
     font-family: 'Fira Code', 'Courier New', Consolas, monospace;
 }
-
