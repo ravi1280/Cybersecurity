@@ -374,7 +374,7 @@ class TopicUI {
             <textarea class="subtopic-content" placeholder="Enter subtopic content/description..." rows="3">${content}</textarea>
         `;
         this.subtopicsList.appendChild(item);
-        
+
         // Scroll the new item into view smoothly
         setTimeout(() => {
             item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -451,27 +451,27 @@ class TopicUI {
                     </div>
                 </div>
                 
-                ${content.description ? `<p class="content-description">${this.escapeHtml(content.description).replace(/\n/g, '<br>')}</p>` : ''}
-                
                 ${content.image ? `<img src="${content.image}" alt="${this.escapeHtml(content.title)}" class="content-image">` : ''}
+                
+                ${content.description ? `<p class="content-description">${this.escapeHtml(content.description).replace(/\n/g, '<br>')}</p>` : ''}
                 
                 ${content.subtopics && content.subtopics.length > 0 ? `
                     <div class="subtopics-list">
                         <h4>Subtopics</h4>
                         <div class="subtopics-content">
                             ${content.subtopics.map(st => {
-                                // Handle both old format (string) and new format (object)
-                                if (typeof st === 'string') {
-                                    return `<div class="subtopic-item-display">
+            // Handle both old format (string) and new format (object)
+            if (typeof st === 'string') {
+                return `<div class="subtopic-item-display">
                                         <div class="subtopic-title-display">• ${this.escapeHtml(st)}</div>
                                     </div>`;
-                                } else {
-                                    return `<div class="subtopic-item-display">
+            } else {
+                return `<div class="subtopic-item-display">
                                         <div class="subtopic-title-display">• ${this.escapeHtml(st.title)}</div>
                                         ${st.content ? `<div class="subtopic-content-display">${this.escapeHtml(st.content).replace(/\n/g, '<br>')}</div>` : ''}
                                     </div>`;
-                                }
-                            }).join('')}
+            }
+        }).join('')}
                         </div>
                     </div>
                 ` : ''}
