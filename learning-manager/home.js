@@ -353,12 +353,17 @@ class HomeUI {
 
     renderGrid() {
         this.topicsGrid.innerHTML = this.lm.topics.map((topic, index) => {
-            // Bento Grid Logic for variable sizes
+            // Bento Grid Logic for variable widths
             let spanClass = '';
 
-            // Pattern: Every 6th item is wide (Index 0, 6, 12...)
-            // This ensures there's always a full row of normal cards between wide ones
-            if (index % 6 === 0) {
+            // Pattern for visual interest:
+            // Every 7th card (index 0, 7, 14...) spans 2 columns
+            // Every 3rd card (but not 7th) spans 2 columns  
+            // Others span 1 column (default)
+            
+            if (index % 7 === 0) {
+                spanClass = 'col-span-2';
+            } else if (index % 3 === 0) {
                 spanClass = 'col-span-2';
             }
 
