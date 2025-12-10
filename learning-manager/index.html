@@ -134,24 +134,165 @@
             <div class="confirm-actions">
                 <button class="btn btn-secondary" id="confirmCancelBtn">Cancel</button>
                 <button class="btn btn-primary" id="confirmOkBtn">Confirm</button>
-            </div>
-        </div>
-    </div>
+                <!DOCTYPE html>
+                <html lang="en">
 
-    <!-- Context Menu -->
-    <div id="contextMenu" class="context-menu">
-        <div class="context-menu-item" onclick="homeUI.handleContextAction('view')">
-            <span class="menu-icon">👁️</span> View Topic
-        </div>
-        <div class="context-menu-item" onclick="homeUI.handleContextAction('edit')">
-            <span class="menu-icon">✏️</span> Edit Topic
-        </div>
-        <div class="context-menu-item delete" onclick="homeUI.handleContextAction('delete')">
-            <span class="menu-icon">🗑️</span> Delete Topic
-        </div>
-    </div>
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Learning Hub - Home</title>
+                    <meta name="description"
+                        content="Comprehensive learning management system for organizing topics, content, and resources">
+                    <link rel="stylesheet" href="styles.css">
+                    <link rel="stylesheet" href="font-override.css">
+                    <link rel="preconnect" href="https://fonts.googleapis.com">
+                    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+                    <link
+                        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Fira+Code:wght@400;500&display=swap"
+                        rel="stylesheet">
+                    <style>
+                        /* Force DM Sans font - inline override */
+                        body,
+                        html,
+                        * {
+                            font-family: 'DM Sans', sans-serif !important;
+                        }
 
-    <script src="home.js"></script>
-</body>
+                        code,
+                        pre {
+                            font-family: 'Fira Code', 'Courier New', monospace !important;
+                        }
+                    </style>
+                </head>
 
-</html>
+                <body>
+                    <!-- Loading Overlay -->
+                    <div id="loadingOverlay" class="loading-overlay">
+                        <div class="loading-content">
+                            <div class="loading-icon">🎓</div>
+                            <h1 class="loading-title">Learning Hub</h1>
+                            <div class="loading-spinner"></div>
+                        </div>
+                    </div>
+                    <!-- Header -->
+                    <header class="header">
+                        <div class="container">
+                            <div class="header-content">
+                                <div class="logo">
+                                    <div class="logo-icon">🎓</div>
+                                    <h1>Learning Hub</h1>
+                                </div>
+                                <div class="header-actions">
+                                    <button class="btn btn-secondary" id="exportDataBtn"
+                                        title="Export data to JSON file">
+                                        <span class="btn-icon">💾</span>
+                                        Export
+                                    </button>
+                                    <button class="btn btn-secondary" id="importDataBtn"
+                                        title="Import data from JSON file">
+                                        <span class="btn-icon">📁</span>
+                                        Import
+                                    </button>
+                                    <button class="btn btn-primary" id="addTopicBtn">
+                                        <span class="btn-icon">➕</span>
+                                        Add Topic
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </header>
+
+                    <!-- Main Content -->
+                    <main class="main-content">
+                        <div class="container">
+                            <!-- Page Title -->
+                            <div class="page-header">
+                                <h2 class="page-title">My Learning Topics</h2>
+                                <!-- <p class="page-subtitle">Click on any topic to view and manage its content</p> -->
+                            </div>
+
+                            <!-- Empty State -->
+                            <div class="empty-state" id="emptyState">
+                                <div class="empty-icon">📚</div>
+                                <h2>Start Your Learning Journey</h2>
+                                <p>Create your first topic to begin organizing your learning materials</p>
+                                <button class="btn btn-primary btn-lg" id="addTopicBtnEmpty">
+                                    <span class="btn-icon">➕</span>
+                                    Create First Topic
+                                </button>
+                            </div>
+
+                            <!-- Topics Grid -->
+                            <div id="topicsGrid" class="bento-grid">
+                                <!-- Topic cards will be inserted here by home.js -->
+                            </div>
+                        </div>
+                    </main>
+
+                    <!-- Add/Edit Topic Modal -->
+                    <div class="modal" id="topicModal">
+                        <div class="modal-overlay" id="topicModalOverlay"></div>
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h2 id="topicModalTitle">Add New Topic</h2>
+                                <button class="modal-close" id="topicModalClose">&times;</button>
+                            </div>
+                            <form id="topicForm">
+                                <div class="form-group">
+                                    <label for="topicName">Topic Name</label>
+                                    <input type="text" id="topicName"
+                                        placeholder="e.g., Network Security, Cryptography, Ethical Hacking" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="topicDescription">Description (Optional)</label>
+                                    <textarea id="topicDescription" rows="3"
+                                        placeholder="Brief description of this topic..."></textarea>
+                                </div>
+                                <div class="modal-actions">
+                                    <button type="button" class="btn btn-secondary" id="cancelTopicBtn">Cancel</button>
+                                    <button type="submit" class="btn btn-primary">
+                                        <span class="btn-icon">💾</span>
+                                        Save Topic
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Toast Container -->
+                    <div id="toastContainer" class="toast-container"></div>
+
+                    <!-- Confirmation Modal -->
+                    <div class="modal" id="confirmModal">
+                        <div class="modal-overlay" id="confirmModalOverlay"></div>
+                        <div class="modal-content confirm-modal-content">
+                            <div class="confirm-icon" id="confirmIcon">❓</div>
+                            <h2 class="confirm-title" id="confirmTitle">Are you sure?</h2>
+                            <p class="confirm-message" id="confirmMessage">This action cannot be undone.</p>
+                            <div class="confirm-actions">
+                                <button class="btn btn-secondary" id="confirmCancelBtn">Cancel</button>
+                                <button class="btn btn-primary" id="confirmOkBtn">Confirm</button>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <!-- Context Menu -->
+                    <div id="contextMenu" class="context-menu">
+                        <div class="context-menu-item" onclick="homeUI.handleContextAction('view')">
+                            <span class="menu-icon">👁️</span> View Topic
+                        </div>
+                        <div class="context-menu-item" onclick="homeUI.handleContextAction('edit')">
+                            <span class="menu-icon">✏️</span> Edit Topic
+                        </div>
+                        <div class="context-menu-item delete" onclick="homeUI.handleContextAction('delete')">
+                            <span class="menu-icon">🗑️</span> Delete Topic
+                        </div>
+                    </div>
+
+                    <script src="home.js"></script>
+
+                </body>
+
+                </html>
