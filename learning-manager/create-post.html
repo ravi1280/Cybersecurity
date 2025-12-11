@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Story</title>
+    <link rel="stylesheet" href="create-post.css">
+    <!-- Using Google Fonts for a premium look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+
+    <nav class="editor-nav">
+        <div class="nav-left">
+            <a href="index.html" class="logo">
+                <i class="fa-solid fa-layer-group"></i>
+            </a>
+            <span class="status">Draft in user</span>
+        </div>
+        <div class="nav-right">
+            <button class="publish-btn">Publish</button>
+            <div class="profile-icon">
+                <img src="https://ui-avatars.com/api/?name=User&background=random" alt="Profile">
+            </div>
+        </div>
+    </nav>
+
+    <main class="editor-container">
+        <div class="editor-content">
+            <div class="input-group title-group">
+                <input type="text" id="postTitle" placeholder="Title" autocomplete="off">
+            </div>
+
+            <div class="input-group subtitle-group">
+                <input type="text" id="postSubtitle" placeholder="Tell your story..." autocomplete="off">
+            </div>
+
+            <div id="editor" class="editable-area" contenteditable="true" data-placeholder="Start writing...">
+                <p><br></p>
+            </div>
+        </div>
+
+        <div class="floating-toolbar" id="floatingToolbar">
+            <button class="tool-btn" data-command="bold" title="Bold"><i class="fa-solid fa-bold"></i></button>
+            <button class="tool-btn" data-command="italic" title="Italic"><i class="fa-solid fa-italic"></i></button>
+            <button class="tool-btn" data-command="h2" title="Heading"><i class="fa-solid fa-heading"></i></button>
+            <button class="tool-btn" data-command="blockquote" title="Quote"><i
+                    class="fa-solid fa-quote-right"></i></button>
+            <div class="divider"></div>
+            <label for="imageUpload" class="tool-btn" title="Add Image">
+                <i class="fa-regular fa-image"></i>
+                <input type="file" id="imageUpload" accept="image/*" style="display: none;">
+            </label>
+        </div>
+    </main>
+
+    <script src="create-post.js"></script>
+</body>
+
+</html>
